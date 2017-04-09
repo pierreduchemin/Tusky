@@ -27,7 +27,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class ViewTagActivity extends BaseActivity {
-    @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

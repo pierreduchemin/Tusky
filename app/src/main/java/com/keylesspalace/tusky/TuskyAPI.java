@@ -25,6 +25,7 @@ public interface TuskyAPI {
     @FormUrlEncoded
     @POST("/register")
     Call<ResponseBody> register(@Field("instance_url") String instanceUrl, @Field("access_token") String accessToken, @Field("device_token") String deviceToken);
+
     @FormUrlEncoded
     @POST("/unregister")
     Call<ResponseBody> unregister(@Field("instance_url") String instanceUrl, @Field("access_token") String accessToken);

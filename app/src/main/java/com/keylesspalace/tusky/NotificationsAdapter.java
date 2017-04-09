@@ -47,7 +47,7 @@ class NotificationsAdapter extends RecyclerView.Adapter implements AdapterItemRe
     private NotificationActionListener notificationActionListener;
 
     NotificationsAdapter(StatusActionListener statusListener,
-            NotificationActionListener notificationActionListener) {
+                         NotificationActionListener notificationActionListener) {
         super();
         notifications = new ArrayList<>();
         this.statusListener = statusListener;
@@ -139,7 +139,9 @@ class NotificationsAdapter extends RecyclerView.Adapter implements AdapterItemRe
         }
     }
 
-    public @Nullable Notification getItem(int position) {
+    public
+    @Nullable
+    Notification getItem(int position) {
         if (position >= 0 && position < notifications.size()) {
             return notifications.get(position);
         }

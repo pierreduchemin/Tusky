@@ -41,14 +41,6 @@ public class AccountFragment extends BaseFragment implements AccountActionListen
     private static final String TAG = "Account"; // logging tag
 
     private Call<List<Account>> listCall;
-
-    public enum Type {
-        FOLLOWS,
-        FOLLOWERS,
-        BLOCKS,
-        MUTES,
-    }
-
     private Type type;
     private String accountId;
     private LinearLayoutManager layoutManager;
@@ -75,6 +67,15 @@ public class AccountFragment extends BaseFragment implements AccountActionListen
         return fragment;
     }
 
+    private static boolean findAccount(List<Account> accounts, String id) {
+        for (Account account : accounts) {
+            if (account.id.equals(id)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,7 +88,7 @@ public class AccountFragment extends BaseFragment implements AccountActionListen
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState) {
+                             @Nullable Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_account, container, false);
 
@@ -213,15 +214,6 @@ public class AccountFragment extends BaseFragment implements AccountActionListen
         fetchAccounts(null, null);
     }
 
-    private static boolean findAccount(List<Account> accounts, String id) {
-        for (Account account : accounts) {
-            if (account.id.equals(id)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private void onFetchAccountsSuccess(List<Account> accounts, String fromId) {
         if (fromId != null) {
             if (accounts.size() > 0 && !findAccount(accounts, fromId)) {
@@ -299,5 +291,12 @@ public class AccountFragment extends BaseFragment implements AccountActionListen
     private void jumpToTop() {
         layoutManager.scrollToPositionWithOffset(0, 0);
         scrollListener.reset();
+    }
+
+    public enum Type {
+        FOLLOWS,
+        FOLLOWERS,
+        BLOCKS,
+        MUTES,
     }
 }

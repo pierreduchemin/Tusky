@@ -22,8 +22,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.Date;
 
 public class Status {
-    private Status actionableStatus;
-
+    public static final int MAX_MEDIA_ATTACHMENTS = 4;
     public String url;
 
     @SerializedName("reblogs_count")
@@ -37,6 +36,22 @@ public class Status {
 
     @SerializedName("in_reply_to_account_id")
     public String inReplyToAccountId;
+    public String id;
+    public Account account;
+    public Spanned content;
+    public Status reblog;
+    @SerializedName("created_at")
+    public Date createdAt;
+    public boolean reblogged;
+    public boolean favourited;
+    public boolean sensitive;
+    @SerializedName("spoiler_text")
+    public String spoilerText;
+    public Visibility visibility;
+    @SerializedName("media_attachments")
+    public MediaAttachment[] attachments;
+    public Mention[] mentions;
+    private Status actionableStatus;
 
     public String getActionableId() {
         return reblog == null ? id : reblog.id;
@@ -45,40 +60,6 @@ public class Status {
     public Status getActionableStatus() {
         return reblog == null ? this : reblog;
     }
-
-    public enum Visibility {
-        UNKNOWN,
-        @SerializedName("public")
-        PUBLIC,
-        @SerializedName("unlisted")
-        UNLISTED,
-        @SerializedName("private")
-        PRIVATE,
-        @SerializedName("direct")
-        DIRECT,
-    }
-
-    public String id;
-
-    public Account account;
-
-    public Spanned content;
-
-    public Status reblog;
-
-    @SerializedName("created_at")
-    public Date createdAt;
-
-    public boolean reblogged;
-
-    public boolean favourited;
-
-    public boolean sensitive;
-
-    @SerializedName("spoiler_text")
-    public String spoilerText;
-
-    public Visibility visibility;
 
     public Visibility getVisibility() {
         return visibility == null ? Visibility.UNLISTED : visibility;
@@ -90,13 +71,6 @@ public class Status {
                 && visibility != Visibility.DIRECT
                 && visibility != Visibility.UNKNOWN;
     }
-
-    @SerializedName("media_attachments")
-    public MediaAttachment[] attachments;
-
-    public Mention[] mentions;
-
-    public static final int MAX_MEDIA_ATTACHMENTS = 4;
 
     @Override
     public int hashCode() {
@@ -114,7 +88,28 @@ public class Status {
         return status.id.equals(this.id);
     }
 
+    public enum Visibility {
+        UNKNOWN,
+        @SerializedName("public")
+        PUBLIC,
+        @SerializedName("unlisted")
+        UNLISTED,
+        @SerializedName("private")
+        PRIVATE,
+        @SerializedName("direct")
+        DIRECT,
+    }
+
     public static class MediaAttachment {
+        public String url;
+        @SerializedName("preview_url")
+        public String previewUrl;
+        @SerializedName("text_url")
+        public String textUrl;
+        @SerializedName("remote_url")
+        public String remoteUrl;
+        public Type type;
+
         public enum Type {
             @SerializedName("image")
             IMAGE,
@@ -124,19 +119,6 @@ public class Status {
             VIDEO,
             UNKNOWN,
         }
-
-        public String url;
-
-        @SerializedName("preview_url")
-        public String previewUrl;
-
-        @SerializedName("text_url")
-        public String textUrl;
-
-        @SerializedName("remote_url")
-        public String remoteUrl;
-
-        public Type type;
     }
 
     public static class Mention {

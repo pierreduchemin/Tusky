@@ -34,9 +34,9 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class ViewMediaFragment extends DialogFragment {
 
+    @BindView(R.id.view_media_image)
+    PhotoView photoView;
     private PhotoViewAttacher attacher;
-
-    @BindView(R.id.view_media_image) PhotoView photoView;
 
     public static ViewMediaFragment newInstance(String url) {
         Bundle arguments = new Bundle();
@@ -90,7 +90,7 @@ public class ViewMediaFragment extends DialogFragment {
         attacher.setOnSingleFlingListener(new PhotoViewAttacher.OnSingleFlingListener() {
             @Override
             public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-                    float velocityY) {
+                                   float velocityY) {
                 if (Math.abs(velocityY) > Math.abs(velocityX)) {
                     dismiss();
                     return true;

@@ -102,7 +102,7 @@ class StatusViewHolder extends RecyclerView.ViewHolder {
     }
 
     private void setContent(Spanned content, Status.Mention[] mentions,
-            final StatusActionListener listener) {
+                            final StatusActionListener listener) {
         /* Redirect URLSpan's in the status content to the listener for viewing tag pages and
          * account pages. */
         SpannableStringBuilder builder = new SpannableStringBuilder(content);
@@ -126,7 +126,7 @@ class StatusViewHolder extends RecyclerView.ViewHolder {
             } else if (text.charAt(0) == '@') {
                 final String accountUsername = text.subSequence(1, text.length()).toString();
                 String id = null;
-                for (Status.Mention mention: mentions) {
+                for (Status.Mention mention : mentions) {
                     if (mention.username.equals(accountUsername)) {
                         id = mention.id;
                     }
@@ -207,7 +207,9 @@ class StatusViewHolder extends RecyclerView.ViewHolder {
         reblogButton.setChecked(reblogged);
     }
 
-    /** This should only be called after setReblogged, in order to override the tint correctly. */
+    /**
+     * This should only be called after setReblogged, in order to override the tint correctly.
+     */
     private void setRebloggingEnabled(boolean enabled) {
         reblogButton.setEnabled(enabled);
 
@@ -230,7 +232,7 @@ class StatusViewHolder extends RecyclerView.ViewHolder {
     }
 
     private void setMediaPreviews(final Status.MediaAttachment[] attachments,
-                                 boolean sensitive, final StatusActionListener listener) {
+                                  boolean sensitive, final StatusActionListener listener) {
         final ImageView[] previews = {
                 mediaPreview0,
                 mediaPreview1,

@@ -113,7 +113,7 @@ public class ReportActivity extends BaseActivity {
     }
 
     private void sendReport(final String accountId, final String[] statusIds,
-            final String comment) {
+                            final String comment) {
         mastodonAPI.report(accountId, Arrays.asList(statusIds), comment).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
@@ -138,7 +138,7 @@ public class ReportActivity extends BaseActivity {
     }
 
     private void onSendFailure(final String accountId, final String[] statusIds,
-            final String comment) {
+                               final String comment) {
         Snackbar.make(anyView, R.string.error_generic, Snackbar.LENGTH_LONG)
                 .setAction(R.string.action_retry, new View.OnClickListener() {
                     @Override

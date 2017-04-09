@@ -28,34 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 class ReportAdapter extends RecyclerView.Adapter {
-    static class ReportStatus {
-        String id;
-        Spanned content;
-        boolean checked;
-
-        ReportStatus(String id, Spanned content, boolean checked) {
-            this.id = id;
-            this.content = content;
-            this.checked = checked;
-        }
-
-        @Override
-        public int hashCode() {
-            return id.hashCode();
-        }
-
-        @Override
-        public boolean equals(Object other) {
-            if (this.id == null) {
-                return this == other;
-            } else if (!(other instanceof ReportStatus)) {
-                return false;
-            }
-            ReportStatus status = (ReportStatus) other;
-            return status.id.equals(this.id);
-        }
-    }
-
     private List<ReportStatus> statusList;
 
     ReportAdapter() {
@@ -110,6 +82,34 @@ class ReportAdapter extends RecyclerView.Adapter {
             }
         }
         return idList.toArray(new String[0]);
+    }
+
+    static class ReportStatus {
+        String id;
+        Spanned content;
+        boolean checked;
+
+        ReportStatus(String id, Spanned content, boolean checked) {
+            this.id = id;
+            this.content = content;
+            this.checked = checked;
+        }
+
+        @Override
+        public int hashCode() {
+            return id.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (this.id == null) {
+                return this == other;
+            } else if (!(other instanceof ReportStatus)) {
+                return false;
+            }
+            ReportStatus status = (ReportStatus) other;
+            return status.id.equals(this.id);
+        }
     }
 
     private static class ReportStatusViewHolder extends RecyclerView.ViewHolder {

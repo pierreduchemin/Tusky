@@ -83,7 +83,7 @@ public class SFragment extends BaseFragment {
     }
 
     protected void reblog(final Status status, final boolean reblog,
-            final RecyclerView.Adapter adapter, final int position) {
+                          final RecyclerView.Adapter adapter, final int position) {
         String id = status.getActionableId();
 
         Callback<Status> cb = new Callback<Status>() {
@@ -117,7 +117,7 @@ public class SFragment extends BaseFragment {
     }
 
     protected void favourite(final Status status, final boolean favourite,
-            final RecyclerView.Adapter adapter, final int position) {
+                             final RecyclerView.Adapter adapter, final int position) {
         String id = status.getActionableId();
 
         Callback<Status> cb = new Callback<Status>() {
@@ -183,7 +183,7 @@ public class SFragment extends BaseFragment {
     }
 
     protected void more(Status status, View view, final AdapterItemRemover adapter,
-            final int position) {
+                        final int position) {
         final String id = status.getActionableId();
         final String accountId = status.getActionableStatus().account.id;
         final String accountUsename = status.getActionableStatus().account.username;

@@ -56,7 +56,8 @@ import retrofit2.Response;
 
 public class AccountActivity extends BaseActivity {
     private static final String TAG = "AccountActivity"; // logging tag
-
+    @BindView(R.id.account_locked)
+    ImageView accountLockedView;
     private String accountId;
     private boolean following = false;
     private boolean blocking = false;
@@ -64,8 +65,6 @@ public class AccountActivity extends BaseActivity {
     private boolean isSelf;
     private TabLayout tabLayout;
     private Account loadedAccount;
-
-    @BindView(R.id.account_locked) ImageView accountLockedView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -100,7 +99,8 @@ public class AccountActivity extends BaseActivity {
         final CollapsingToolbarLayout collapsingToolbar =
                 (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            @AttrRes int priorAttribute = R.attr.account_toolbar_icon_tint_uncollapsed;
+            @AttrRes
+            int priorAttribute = R.attr.account_toolbar_icon_tint_uncollapsed;
 
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
@@ -143,9 +143,9 @@ public class AccountActivity extends BaseActivity {
         AccountPagerAdapter adapter = new AccountPagerAdapter(getSupportFragmentManager(), this,
                 accountId);
         String[] pageTitles = {
-            getString(R.string.title_statuses),
-            getString(R.string.title_follows),
-            getString(R.string.title_followers)
+                getString(R.string.title_statuses),
+                getString(R.string.title_follows),
+                getString(R.string.title_followers)
         };
         adapter.setPageTitles(pageTitles);
         ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
@@ -228,9 +228,9 @@ public class AccountActivity extends BaseActivity {
 
         // Add counts to the tabs in the TabLayout.
         String[] counts = {
-            nf.format(Integer.parseInt(account.statusesCount)),
-            nf.format(Integer.parseInt(account.followingCount)),
-            nf.format(Integer.parseInt(account.followersCount)),
+                nf.format(Integer.parseInt(account.statusesCount)),
+                nf.format(Integer.parseInt(account.followingCount)),
+                nf.format(Integer.parseInt(account.followersCount)),
         };
 
         for (int i = 0; i < tabLayout.getTabCount(); i++) {
@@ -304,7 +304,7 @@ public class AccountActivity extends BaseActivity {
 
         final FloatingActionButton floatingBtn = (FloatingActionButton) findViewById(R.id.floating_btn);
 
-        if(!isSelf && !blocking) {
+        if (!isSelf && !blocking) {
             floatingBtn.show();
 
             updateFollowButton(floatingBtn);
@@ -492,7 +492,7 @@ public class AccountActivity extends BaseActivity {
                     return false;
                 }
                 Intent intent = new Intent(this, ComposeActivity.class);
-                intent.putExtra("mentioned_usernames", new String[] { loadedAccount.username });
+                intent.putExtra("mentioned_usernames", new String[]{loadedAccount.username});
                 startActivity(intent);
                 return true;
             }

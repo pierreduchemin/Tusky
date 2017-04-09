@@ -43,16 +43,6 @@ public class TimelineFragment extends SFragment implements
     private static final String TAG = "Timeline"; // logging tag
 
     private Call<List<Status>> listCall;
-
-    enum Kind {
-        HOME,
-        PUBLIC_LOCAL,
-        PUBLIC_FEDERATED,
-        TAG,
-        USER,
-        FAVOURITES
-    }
-
     private SwipeRefreshLayout swipeRefreshLayout;
     private TimelineAdapter adapter;
     private Kind kind;
@@ -79,9 +69,18 @@ public class TimelineFragment extends SFragment implements
         return fragment;
     }
 
+    private static boolean findStatus(List<Status> statuses, String id) {
+        for (Status status : statuses) {
+            if (status.id.equals(id)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-             Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
 
         Bundle arguments = getArguments();
         kind = Kind.valueOf(arguments.getString("kind"));
@@ -113,10 +112,12 @@ public class TimelineFragment extends SFragment implements
             TabLayout layout = (TabLayout) getActivity().findViewById(R.id.tab_layout);
             onTabSelectedListener = new TabLayout.OnTabSelectedListener() {
                 @Override
-                public void onTabSelected(TabLayout.Tab tab) {}
+                public void onTabSelected(TabLayout.Tab tab) {
+                }
 
                 @Override
-                public void onTabUnselected(TabLayout.Tab tab) {}
+                public void onTabUnselected(TabLayout.Tab tab) {
+                }
 
                 @Override
                 public void onTabReselected(TabLayout.Tab tab) {
@@ -265,15 +266,6 @@ public class TimelineFragment extends SFragment implements
         sendFetchTimelineRequest(null, null);
     }
 
-    private static boolean findStatus(List<Status> statuses, String id) {
-        for (Status status : statuses) {
-            if (status.id.equals(id)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public void onFetchTimelineSuccess(List<Status> statuses, String fromId) {
         if (fromId != null) {
             if (statuses.size() > 0 && !findStatus(statuses, fromId)) {
@@ -338,5 +330,14 @@ public class TimelineFragment extends SFragment implements
             return;
         }
         super.viewAccount(id);
+    }
+
+    enum Kind {
+        HOME,
+        PUBLIC_LOCAL,
+        PUBLIC_FEDERATED,
+        TAG,
+        USER,
+        FAVOURITES
     }
 }

@@ -29,7 +29,6 @@ import android.text.Spanned;
 import android.util.TypedValue;
 import android.view.Menu;
 
-import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -40,9 +39,6 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -72,7 +68,7 @@ public class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        if(mastodonApiDispatcher != null) mastodonApiDispatcher.cancelAll();
+        if (mastodonApiDispatcher != null) mastodonApiDispatcher.cancelAll();
         super.onDestroy();
     }
 
@@ -185,33 +181,5 @@ public class BaseActivity extends AppCompatActivity {
             }
         }
         return super.onCreateOptionsMenu(menu);
-    }
-
-    protected void enablePushNotifications() {
-        tuskyAPI.register(getBaseUrl(), getAccessToken(), FirebaseInstanceId.getInstance().getToken()).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
-                Log.d(TAG, "Enable push notifications response: " + response.message());
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.d(TAG, "Enable push notifications failed: " + t.getMessage());
-            }
-        });
-    }
-
-    protected void disablePushNotifications() {
-        tuskyAPI.unregister(getBaseUrl(), getAccessToken()).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
-                Log.d(TAG, "Disable push notifications response: " + response.message());
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.d(TAG, "Disable push notifications failed: " + t.getMessage());
-            }
-        });
     }
 }

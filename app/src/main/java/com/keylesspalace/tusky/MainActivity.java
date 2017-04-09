@@ -15,7 +15,6 @@
 
 package com.keylesspalace.tusky;
 
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -163,7 +162,8 @@ public class MainActivity extends BaseActivity {
             }
 
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {}
+            public void onTabReselected(TabLayout.Tab tab) {
+            }
         });
 
         Intent intent = getIntent();
@@ -183,9 +183,6 @@ public class MainActivity extends BaseActivity {
             tintTab(tabLayout.getTabAt(i), i == tabSelected);
         }
 
-        // Setup push notifications
-        if (arePushNotificationsEnabled()) enablePushNotifications();
-
         composeButton = floatingBtn;
     }
 
@@ -197,8 +194,6 @@ public class MainActivity extends BaseActivity {
         SharedPreferences.Editor editor = notificationPreferences.edit();
         editor.putString("current", "[]");
         editor.apply();
-
-        ((NotificationManager) (getSystemService(NOTIFICATION_SERVICE))).cancel(MyFirebaseMessagingService.NOTIFY_ID);
     }
 
     @Override
@@ -301,8 +296,6 @@ public class MainActivity extends BaseActivity {
     }
 
     private void logout() {
-        if (arePushNotificationsEnabled()) disablePushNotifications();
-
         SharedPreferences preferences = getSharedPreferences(getString(R.string.preferences_file_key), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.remove("domain");
@@ -476,9 +469,9 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        if(drawer != null && drawer.isDrawerOpen()) {
+        if (drawer != null && drawer.isDrawerOpen()) {
             drawer.closeDrawer();
-        } else if(pageHistory.size() < 2) {
+        } else if (pageHistory.size() < 2) {
             super.onBackPressed();
         } else {
             pageHistory.pop();

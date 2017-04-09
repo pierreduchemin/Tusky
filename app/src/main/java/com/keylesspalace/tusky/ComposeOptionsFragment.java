@@ -28,17 +28,12 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 public class ComposeOptionsFragment extends BottomSheetDialogFragment {
-    interface Listener {
-        void onVisibilityChanged(String visibility);
-        void onContentWarningChanged(boolean hideText);
-    }
-
     private RadioGroup radio;
     private CheckBox hideText;
     private Listener listener;
 
     public static ComposeOptionsFragment newInstance(String visibility, boolean hideText,
-            boolean isReply) {
+                                                     boolean isReply) {
         Bundle arguments = new Bundle();
         ComposeOptionsFragment fragment = new ComposeOptionsFragment();
         arguments.putString("visibility", visibility);
@@ -57,7 +52,7 @@ public class ComposeOptionsFragment extends BottomSheetDialogFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState) {
+                             @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_compose_options, container, false);
 
         Bundle arguments = getArguments();
@@ -123,5 +118,11 @@ public class ComposeOptionsFragment extends BottomSheetDialogFragment {
                 listener.onContentWarningChanged(isChecked);
             }
         });
+    }
+
+    interface Listener {
+        void onVisibilityChanged(String visibility);
+
+        void onContentWarningChanged(boolean hideText);
     }
 }

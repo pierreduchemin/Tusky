@@ -94,7 +94,7 @@ import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 
-public class  ComposeActivity extends BaseActivity implements ComposeOptionsFragment.Listener {
+public class ComposeActivity extends BaseActivity implements ComposeOptionsFragment.Listener {
     private static final String TAG = "ComposeActivity"; // logging tag
     private static final int STATUS_CHARACTER_LIMIT = 500;
     private static final int STATUS_MEDIA_SIZE_LIMIT = 4000000; // 4MB
@@ -122,102 +122,6 @@ public class  ComposeActivity extends BaseActivity implements ComposeOptionsFrag
     private ImageButton pickBtn;
     private Button nsfwBtn;
     private ProgressBar postProgress;
-
-    private static class QueuedMedia {
-        enum Type {
-            IMAGE,
-            VIDEO
-        }
-
-        enum ReadyStage {
-            DOWNSIZING,
-            UPLOADING
-        }
-
-        Type type;
-        ImageView preview;
-        Uri uri;
-        String id;
-        Call<Media> uploadRequest;
-        ReadyStage readyStage;
-        byte[] content;
-        long mediaSize;
-
-        QueuedMedia(Type type, Uri uri, ImageView preview, long mediaSize) {
-            this.type = type;
-            this.uri = uri;
-            this.preview = preview;
-            this.mediaSize = mediaSize;
-        }
-    }
-
-    /**This saves enough information to re-enqueue an attachment when restoring the activity. */
-    private static class SavedQueuedMedia implements Parcelable {
-        QueuedMedia.Type type;
-        Uri uri;
-        Bitmap preview;
-        long mediaSize;
-
-        SavedQueuedMedia(QueuedMedia.Type type, Uri uri, ImageView view, long mediaSize) {
-            this.type = type;
-            this.uri = uri;
-            this.preview = ((BitmapDrawable) view.getDrawable()).getBitmap();
-            this.mediaSize = mediaSize;
-        }
-
-        SavedQueuedMedia(Parcel parcel) {
-            type = (QueuedMedia.Type) parcel.readSerializable();
-            uri = parcel.readParcelable(Uri.class.getClassLoader());
-            preview = parcel.readParcelable(Bitmap.class.getClassLoader());
-            mediaSize = parcel.readLong();
-        }
-
-        @Override
-        public int describeContents() {
-            return 0;
-        }
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            dest.writeSerializable(type);
-            dest.writeParcelable(uri, flags);
-            dest.writeParcelable(preview, flags);
-            dest.writeLong(mediaSize);
-        }
-
-        public static final Parcelable.Creator<SavedQueuedMedia> CREATOR
-                = new Parcelable.Creator<SavedQueuedMedia>() {
-            public SavedQueuedMedia createFromParcel(Parcel in) {
-                return new SavedQueuedMedia(in);
-            }
-
-            public SavedQueuedMedia[] newArray(int size) {
-                return new SavedQueuedMedia[size];
-            }
-        };
-    }
-
-    private void doErrorDialog(@StringRes int descriptionId, @StringRes int actionId,
-            View.OnClickListener listener) {
-        Snackbar bar = Snackbar.make(findViewById(R.id.activity_compose), getString(descriptionId),
-                Snackbar.LENGTH_SHORT);
-        bar.setAction(actionId, listener);
-        bar.show();
-    }
-
-    private void displayTransientError(@StringRes int stringId) {
-        Snackbar.make(findViewById(R.id.activity_compose), stringId, Snackbar.LENGTH_LONG).show();
-    }
-
-    private static class FindCharsResult {
-        int charIndex;
-        int stringIndex;
-
-        FindCharsResult() {
-            charIndex = -1;
-            stringIndex = -1;
-        }
-    }
 
     private static FindCharsResult findChars(String string, int fromIndex, char[] chars) {
         FindCharsResult result = new FindCharsResult();
@@ -253,7 +157,7 @@ public class  ComposeActivity extends BaseActivity implements ComposeOptionsFrag
 
     private static int findEndOfHashtag(String string, int fromIndex) {
         final int length = string.length();
-        for (int i = fromIndex + 1; i < length;) {
+        for (int i = fromIndex + 1; i < length; ) {
             int codepoint = string.codePointAt(i);
             if (Character.isWhitespace(codepoint)) {
                 return i;
@@ -268,7 +172,7 @@ public class  ComposeActivity extends BaseActivity implements ComposeOptionsFrag
     private static int findEndOfMention(String string, int fromIndex) {
         int atCount = 0;
         final int length = string.length();
-        for (int i = fromIndex + 1; i < length;) {
+        for (int i = fromIndex + 1; i < length; ) {
             int codepoint = string.codePointAt(i);
             if (Character.isWhitespace(codepoint)) {
                 return i;
@@ -295,7 +199,7 @@ public class  ComposeActivity extends BaseActivity implements ComposeOptionsFrag
         int start;
         int end = 0;
         while (end < n) {
-            char[] chars = { '#', '@' };
+            char[] chars = {'#', '@'};
             FindCharsResult found = findStart(string, end, chars);
             start = found.stringIndex;
             if (start < 0) {
@@ -314,6 +218,58 @@ public class  ComposeActivity extends BaseActivity implements ComposeOptionsFrag
             text.setSpan(new ForegroundColorSpan(colour), start, end,
                     Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
         }
+    }
+
+    private static String randomAlphanumericString(int count) {
+        char[] chars = new char[count];
+        Random random = new Random();
+        final String POSSIBLE_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        for (int i = 0; i < count; i++) {
+            chars[i] = POSSIBLE_CHARS.charAt(random.nextInt(POSSIBLE_CHARS.length()));
+        }
+        return new String(chars);
+    }
+
+    @Nullable
+    private static byte[] inputStreamGetBytes(InputStream stream) {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        int read;
+        byte[] data = new byte[16384];
+        try {
+            while ((read = stream.read(data, 0, data.length)) != -1) {
+                buffer.write(data, 0, read);
+            }
+            buffer.flush();
+        } catch (IOException e) {
+            return null;
+        }
+        return buffer.toByteArray();
+    }
+
+    private static long getMediaSize(ContentResolver contentResolver, Uri uri) {
+        long mediaSize;
+        Cursor cursor = contentResolver.query(uri, null, null, null, null);
+        if (cursor != null) {
+            int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+            cursor.moveToFirst();
+            mediaSize = cursor.getLong(sizeIndex);
+            cursor.close();
+        } else {
+            mediaSize = MEDIA_SIZE_UNKNOWN;
+        }
+        return mediaSize;
+    }
+
+    private void doErrorDialog(@StringRes int descriptionId, @StringRes int actionId,
+                               View.OnClickListener listener) {
+        Snackbar bar = Snackbar.make(findViewById(R.id.activity_compose), getString(descriptionId),
+                Snackbar.LENGTH_SHORT);
+        bar.setAction(actionId, listener);
+        bar.show();
+    }
+
+    private void displayTransientError(@StringRes int stringId) {
+        Snackbar.make(findViewById(R.id.activity_compose), stringId, Snackbar.LENGTH_LONG).show();
     }
 
     @Override
@@ -455,7 +411,8 @@ public class  ComposeActivity extends BaseActivity implements ComposeOptionsFrag
             }
 
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void afterTextChanged(Editable editable) {
@@ -481,7 +438,8 @@ public class  ComposeActivity extends BaseActivity implements ComposeOptionsFrag
         contentWarningBar = findViewById(R.id.compose_content_warning_bar);
         contentWarningEditor.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -489,7 +447,8 @@ public class  ComposeActivity extends BaseActivity implements ComposeOptionsFrag
             }
 
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
         showContentWarning(startingHideText);
 
@@ -708,7 +667,7 @@ public class  ComposeActivity extends BaseActivity implements ComposeOptionsFrag
                         new InputConnectionCompat.OnCommitContentListener() {
                             @Override
                             public boolean onCommitContent(InputContentInfoCompat inputContentInfo,
-                                    int flags, Bundle opts) {
+                                                           int flags, Bundle opts) {
                                 return ComposeActivity.this.onCommitContent(inputContentInfo, flags,
                                         mimeTypes);
                             }
@@ -728,7 +687,7 @@ public class  ComposeActivity extends BaseActivity implements ComposeOptionsFrag
     }
 
     private boolean onCommitContent(InputContentInfoCompat inputContentInfo, int flags,
-            String[] mimeTypes) {
+                                    String[] mimeTypes) {
         try {
             if (currentInputContentInfo != null) {
                 currentInputContentInfo.releasePermission();
@@ -826,7 +785,7 @@ public class  ComposeActivity extends BaseActivity implements ComposeOptionsFrag
     }
 
     private void readyStatus(final String content, final String visibility, final boolean sensitive,
-            final String spoilerText) {
+                             final String spoilerText) {
         finishingUploadDialog = ProgressDialog.show(
                 this, getString(R.string.dialog_title_finishing_media_upload),
                 getString(R.string.dialog_message_uploading_media), true, true);
@@ -874,7 +833,7 @@ public class  ComposeActivity extends BaseActivity implements ComposeOptionsFrag
     }
 
     private void onReadyFailure(final String content, final String visibility,
-            final boolean sensitive, final String spoilerText) {
+                                final boolean sensitive, final String spoilerText) {
         doErrorDialog(R.string.error_media_upload_sending, R.string.action_retry,
                 new View.OnClickListener() {
                     @Override
@@ -888,9 +847,9 @@ public class  ComposeActivity extends BaseActivity implements ComposeOptionsFrag
     private void onMediaPick() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN &&
                 ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
+                        != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
-                    new String[] { Manifest.permission.READ_EXTERNAL_STORAGE },
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                     PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
         } else {
             initiateMediaPicking();
@@ -899,7 +858,7 @@ public class  ComposeActivity extends BaseActivity implements ComposeOptionsFrag
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
-            @NonNull int[] grantResults) {
+                                           @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
                 if (grantResults.length > 0
@@ -925,7 +884,7 @@ public class  ComposeActivity extends BaseActivity implements ComposeOptionsFrag
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
             intent.setType("image/* video/*");
         } else {
-            String[] mimeTypes = new String[] { "image/*", "video/*" };
+            String[] mimeTypes = new String[]{"image/*", "video/*"};
             intent.setType("*/*");
             intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
         }
@@ -1008,7 +967,7 @@ public class  ComposeActivity extends BaseActivity implements ComposeOptionsFrag
     }
 
     private void removeAllMediaFromQueue() {
-        for (Iterator<QueuedMedia> it = mediaQueued.iterator(); it.hasNext();) {
+        for (Iterator<QueuedMedia> it = mediaQueued.iterator(); it.hasNext(); ) {
             QueuedMedia item = it.next();
             it.remove();
             removeMediaFromQueue(item);
@@ -1030,38 +989,12 @@ public class  ComposeActivity extends BaseActivity implements ComposeOptionsFrag
                     public void onFailure() {
                         onMediaDownsizeFailure(item);
                     }
-        }).execute(item.uri);
+                }).execute(item.uri);
     }
 
     private void onMediaDownsizeFailure(QueuedMedia item) {
         displayTransientError(R.string.error_media_upload_size);
         removeMediaFromQueue(item);
-    }
-
-    private static String randomAlphanumericString(int count) {
-        char[] chars = new char[count];
-        Random random = new Random();
-        final String POSSIBLE_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        for (int i = 0; i < count; i++) {
-            chars[i] = POSSIBLE_CHARS.charAt(random.nextInt(POSSIBLE_CHARS.length()));
-        }
-        return new String(chars);
-    }
-
-    @Nullable
-    private static byte[] inputStreamGetBytes(InputStream stream) {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        int read;
-        byte[] data = new byte[16384];
-        try {
-            while ((read = stream.read(data, 0, data.length)) != -1) {
-                buffer.write(data, 0, read);
-            }
-            buffer.flush();
-        } catch (IOException e) {
-            return null;
-        }
-        return buffer.toByteArray();
     }
 
     private void uploadMedia(final QueuedMedia item) {
@@ -1143,20 +1076,6 @@ public class  ComposeActivity extends BaseActivity implements ComposeOptionsFrag
         }
     }
 
-    private static long getMediaSize(ContentResolver contentResolver, Uri uri) {
-        long mediaSize;
-        Cursor cursor = contentResolver.query(uri, null, null, null, null);
-        if (cursor != null) {
-            int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
-            cursor.moveToFirst();
-            mediaSize = cursor.getLong(sizeIndex);
-            cursor.close();
-        } else {
-            mediaSize = MEDIA_SIZE_UNKNOWN;
-        }
-        return mediaSize;
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -1231,12 +1150,12 @@ public class  ComposeActivity extends BaseActivity implements ComposeOptionsFrag
     void showMarkSensitive(boolean show) {
         showMarkSensitive = show;
 
-        if(!showMarkSensitive) {
+        if (!showMarkSensitive) {
             statusMarkSensitive = false;
             nsfwBtn.setTextColor(ThemeUtils.getColor(this, R.attr.compose_nsfw_button_color));
         }
 
-        if(show) {
+        if (show) {
             nsfwBtn.setVisibility(View.VISIBLE);
         } else {
             nsfwBtn.setVisibility(View.GONE);
@@ -1262,5 +1181,88 @@ public class  ComposeActivity extends BaseActivity implements ComposeOptionsFrag
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private static class QueuedMedia {
+        Type type;
+        ImageView preview;
+        Uri uri;
+        String id;
+        Call<Media> uploadRequest;
+        ReadyStage readyStage;
+        byte[] content;
+        long mediaSize;
+        QueuedMedia(Type type, Uri uri, ImageView preview, long mediaSize) {
+            this.type = type;
+            this.uri = uri;
+            this.preview = preview;
+            this.mediaSize = mediaSize;
+        }
+        enum Type {
+            IMAGE,
+            VIDEO
+        }
+
+        enum ReadyStage {
+            DOWNSIZING,
+            UPLOADING
+        }
+    }
+
+    /**
+     * This saves enough information to re-enqueue an attachment when restoring the activity.
+     */
+    private static class SavedQueuedMedia implements Parcelable {
+        public static final Parcelable.Creator<SavedQueuedMedia> CREATOR
+                = new Parcelable.Creator<SavedQueuedMedia>() {
+            public SavedQueuedMedia createFromParcel(Parcel in) {
+                return new SavedQueuedMedia(in);
+            }
+
+            public SavedQueuedMedia[] newArray(int size) {
+                return new SavedQueuedMedia[size];
+            }
+        };
+        QueuedMedia.Type type;
+        Uri uri;
+        Bitmap preview;
+        long mediaSize;
+
+        SavedQueuedMedia(QueuedMedia.Type type, Uri uri, ImageView view, long mediaSize) {
+            this.type = type;
+            this.uri = uri;
+            this.preview = ((BitmapDrawable) view.getDrawable()).getBitmap();
+            this.mediaSize = mediaSize;
+        }
+
+        SavedQueuedMedia(Parcel parcel) {
+            type = (QueuedMedia.Type) parcel.readSerializable();
+            uri = parcel.readParcelable(Uri.class.getClassLoader());
+            preview = parcel.readParcelable(Bitmap.class.getClassLoader());
+            mediaSize = parcel.readLong();
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeSerializable(type);
+            dest.writeParcelable(uri, flags);
+            dest.writeParcelable(preview, flags);
+            dest.writeLong(mediaSize);
+        }
+    }
+
+    private static class FindCharsResult {
+        int charIndex;
+        int stringIndex;
+
+        FindCharsResult() {
+            charIndex = -1;
+            stringIndex = -1;
+        }
     }
 }

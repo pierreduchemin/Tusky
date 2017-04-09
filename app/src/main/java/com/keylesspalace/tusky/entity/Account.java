@@ -23,35 +23,56 @@ import com.google.gson.annotations.SerializedName;
 import com.keylesspalace.tusky.HtmlUtils;
 
 public class Account implements SearchSuggestion {
-    public String id;
+    public static final Creator<Account> CREATOR = new Creator<Account>() {
+        @Override
+        public Account createFromParcel(Parcel source) {
+            return new Account(source);
+        }
 
+        @Override
+        public Account[] newArray(int size) {
+            return new Account[size];
+        }
+    };
+    public String id;
     @SerializedName("username")
     public String localUsername;
-
     @SerializedName("acct")
     public String username;
-
     @SerializedName("display_name")
     public String displayName;
-
     public Spanned note;
-
     public String url;
-
     public String avatar;
-
     public String header;
-
     public boolean locked;
-
     @SerializedName("followers_count")
     public String followersCount;
-
     @SerializedName("following_count")
     public String followingCount;
-
     @SerializedName("statuses_count")
     public String statusesCount;
+
+    public Account() {
+
+    }
+
+    protected Account(Parcel in) {
+        id = in.readString();
+        localUsername = in.readString();
+        username = in.readString();
+        displayName = in.readString();
+        note = HtmlUtils.fromHtml(in.readString());
+        url = in.readString();
+        avatar = in.readString();
+        header = in.readString();
+        boolean[] lockedArray = new boolean[1];
+        in.readBooleanArray(lockedArray);
+        locked = lockedArray[0];
+        followersCount = in.readString();
+        followingCount = in.readString();
+        statusesCount = in.readString();
+    }
 
     @Override
     public int hashCode() {
@@ -97,42 +118,9 @@ public class Account implements SearchSuggestion {
         dest.writeString(url);
         dest.writeString(avatar);
         dest.writeString(header);
-        dest.writeBooleanArray(new boolean[] { locked });
+        dest.writeBooleanArray(new boolean[]{locked});
         dest.writeString(followersCount);
         dest.writeString(followingCount);
         dest.writeString(statusesCount);
     }
-
-    public Account() {
-
-    }
-
-    protected Account(Parcel in) {
-        id = in.readString();
-        localUsername = in.readString();
-        username = in.readString();
-        displayName = in.readString();
-        note = HtmlUtils.fromHtml(in.readString());
-        url = in.readString();
-        avatar = in.readString();
-        header = in.readString();
-        boolean[] lockedArray = new boolean[1];
-        in.readBooleanArray(lockedArray);
-        locked = lockedArray[0];
-        followersCount = in.readString();
-        followingCount = in.readString();
-        statusesCount = in.readString();
-    }
-
-    public static final Creator<Account> CREATOR = new Creator<Account>() {
-        @Override
-        public Account createFromParcel(Parcel source) {
-            return new Account(source);
-        }
-
-        @Override
-        public Account[] newArray(int size) {
-            return new Account[size];
-        }
-    };
 }

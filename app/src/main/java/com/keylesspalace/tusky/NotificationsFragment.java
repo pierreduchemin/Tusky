@@ -57,6 +57,15 @@ public class NotificationsFragment extends SFragment implements
         return fragment;
     }
 
+    private static boolean findNotification(List<Notification> notifications, String id) {
+        for (Notification notification : notifications) {
+            if (notification.id.equals(id)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,7 +74,7 @@ public class NotificationsFragment extends SFragment implements
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-             @Nullable Bundle savedInstanceState) {
+                             @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_timeline, container, false);
 
         // Setup the SwipeRefreshLayout.
@@ -102,10 +111,12 @@ public class NotificationsFragment extends SFragment implements
         TabLayout layout = (TabLayout) getActivity().findViewById(R.id.tab_layout);
         onTabSelectedListener = new TabLayout.OnTabSelectedListener() {
             @Override
-            public void onTabSelected(TabLayout.Tab tab) {}
+            public void onTabSelected(TabLayout.Tab tab) {
+            }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {}
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
@@ -166,15 +177,6 @@ public class NotificationsFragment extends SFragment implements
 
     private void sendFetchNotificationsRequest() {
         sendFetchNotificationsRequest(null, null);
-    }
-
-    private static boolean findNotification(List<Notification> notifications, String id) {
-        for (Notification notification : notifications) {
-            if (notification.id.equals(id)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private void onFetchNotificationsSuccess(List<Notification> notifications, String fromId) {

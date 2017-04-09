@@ -26,7 +26,9 @@ import com.keylesspalace.tusky.entity.Account;
 import com.pkmmte.view.CircularImageView;
 import com.squareup.picasso.Picasso;
 
-/** Both for follows and following lists. */
+/**
+ * Both for follows and following lists.
+ */
 class FollowAdapter extends AccountAdapter {
     private static final int VIEW_TYPE_ACCOUNT = 0;
     private static final int VIEW_TYPE_FOOTER = 1;

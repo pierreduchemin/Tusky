@@ -18,23 +18,9 @@ package com.keylesspalace.tusky.entity;
 import com.google.gson.annotations.SerializedName;
 
 public class Notification {
-    public enum Type {
-        @SerializedName("mention")
-        MENTION,
-        @SerializedName("reblog")
-        REBLOG,
-        @SerializedName("favourite")
-        FAVOURITE,
-        @SerializedName("follow")
-        FOLLOW,
-    }
-
     public Type type;
-
     public String id;
-
     public Account account;
-
     public Status status;
 
     @Override
@@ -51,5 +37,16 @@ public class Notification {
         }
         Notification notification = (Notification) other;
         return notification.id.equals(this.id);
+    }
+
+    public enum Type {
+        @SerializedName("mention")
+        MENTION,
+        @SerializedName("reblog")
+        REBLOG,
+        @SerializedName("favourite")
+        FAVOURITE,
+        @SerializedName("follow")
+        FOLLOW,
     }
 }

@@ -213,6 +213,7 @@ class DownsizeImageTask extends AsyncTask<Uri, Void, Boolean> {
 
     interface Listener {
         void onSuccess(List<byte[]> contentList);
+
         void onFailure();
     }
 }

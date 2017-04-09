@@ -15,7 +15,9 @@
 
 package com.keylesspalace.tusky;
 
-/** Android Studio complains about built-in assertions so this is an alternative. */
+/**
+ * Android Studio complains about built-in assertions so this is an alternative.
+ */
 class Assert {
     private static boolean ENABLED = BuildConfig.DEBUG;
 

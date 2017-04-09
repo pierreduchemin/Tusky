@@ -15,7 +15,9 @@
 
 package com.keylesspalace.tusky;
 
-/**A wrapper for android.util.Log that allows for disabling logging, such as for release builds.*/
+/**
+ * A wrapper for android.util.Log that allows for disabling logging, such as for release builds.
+ */
 public class Log {
     private static final boolean LOGGING_ENABLED = BuildConfig.DEBUG;
 

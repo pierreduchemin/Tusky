@@ -89,10 +89,14 @@ class BlocksAdapter extends AccountAdapter {
     }
 
     static class BlockedUserViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.blocked_user_avatar) CircularImageView avatar;
-        @BindView(R.id.blocked_user_username) TextView username;
-        @BindView(R.id.blocked_user_display_name) TextView displayName;
-        @BindView(R.id.blocked_user_unblock) ImageButton unblock;
+        @BindView(R.id.blocked_user_avatar)
+        CircularImageView avatar;
+        @BindView(R.id.blocked_user_username)
+        TextView username;
+        @BindView(R.id.blocked_user_display_name)
+        TextView displayName;
+        @BindView(R.id.blocked_user_unblock)
+        ImageButton unblock;
 
         private String id;
 
@@ -115,7 +119,7 @@ class BlocksAdapter extends AccountAdapter {
         }
 
         void setupActionListener(final AccountActionListener listener, final boolean blocked,
-                final int position) {
+                                 final int position) {
             unblock.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

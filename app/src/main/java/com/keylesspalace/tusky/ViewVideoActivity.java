@@ -27,8 +27,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class ViewVideoActivity extends BaseActivity {
-    @BindView(R.id.video_player) VideoView videoView;
-    @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.video_player)
+    VideoView videoView;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

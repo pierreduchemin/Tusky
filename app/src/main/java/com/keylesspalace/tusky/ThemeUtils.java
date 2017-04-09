@@ -28,7 +28,7 @@ import android.widget.ImageView;
 
 class ThemeUtils {
     static Drawable getDrawable(Context context, @AttrRes int attribute,
-            @DrawableRes int fallbackDrawable) {
+                                @DrawableRes int fallbackDrawable) {
         TypedValue value = new TypedValue();
         @DrawableRes int resourceId;
         if (context.getTheme().resolveAttribute(attribute, value, true)) {
@@ -39,8 +39,10 @@ class ThemeUtils {
         return ContextCompat.getDrawable(context, resourceId);
     }
 
-    static @DrawableRes int getDrawableId(Context context, @AttrRes int attribute,
-            @DrawableRes int fallbackDrawableId) {
+    static
+    @DrawableRes
+    int getDrawableId(Context context, @AttrRes int attribute,
+                      @DrawableRes int fallbackDrawableId) {
         TypedValue value = new TypedValue();
         if (context.getTheme().resolveAttribute(attribute, value, true)) {
             return value.resourceId;
@@ -49,7 +51,9 @@ class ThemeUtils {
         }
     }
 
-    static @ColorInt int getColor(Context context, @AttrRes int attribute) {
+    static
+    @ColorInt
+    int getColor(Context context, @AttrRes int attribute) {
         TypedValue value = new TypedValue();
         if (context.getTheme().resolveAttribute(attribute, value, true)) {
             return value.data;
