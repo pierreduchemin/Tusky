@@ -91,7 +91,7 @@ public class Account implements SearchSuggestion {
     }
 
     public String getDisplayName() {
-        if (displayName.length() == 0) {
+        if (displayName != null && displayName.length() == 0) {
             return localUsername;
         }
 
