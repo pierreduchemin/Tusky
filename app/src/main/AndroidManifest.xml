@@ -84,6 +84,9 @@
             </intent-filter>
         </service>
 
+        <!-- Mqtt Service -->
+        <service android:name="org.eclipse.paho.android.service.MqttService" />
+
         <receiver android:name=".NotificationClearBroadcastReceiver" />
 
         <service
