@@ -24,8 +24,10 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.keylesspalace.tusky.notifications.MQTTClient;
+import com.keylesspalace.tusky.notifications.NotificationActions;
 
 public class SplashActivity extends AppCompatActivity {
     private static final int SPLASH_TIME_OUT = 2000;
@@ -58,7 +60,27 @@ public class SplashActivity extends AppCompatActivity {
             intent = new Intent(this, LoginActivity.class);
         }
 
-        new MQTTClient(this);
+        MQTTClient mqttClient = new MQTTClient(this, "tcp://iot.eclipse.org:1883", new NotificationActions() {
+            @Override
+            public void onMessageReceived(String message) {
+                Toast.makeText(SplashActivity.this, "It's alive !", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onConnectionComplete() {
+
+            }
+
+            @Override
+            public void onConnectionLost(Throwable cause) {
+
+            }
+
+            @Override
+            public void onConnectionFailed(Throwable exception) {
+
+            }
+        });
 
         new Handler().postDelayed(new Runnable() {
             @Override
