@@ -17,8 +17,33 @@ package com.keylesspalace.tusky.notifications;
 
 public interface NotificationActions {
 
-    void onMessageReceived(String message);
+    /**
+     * A push message have been received
+     *
+     * @param topic   the MQTT topic where message have been posted.
+     *                In the context of Tusky, in order to avoid conflicts, it can't contain "/".
+     * @param message the message content
+     */
+    void onMessageReceived(String topic, String message);
+
+    /**
+     * MQTT connection is complete, we are now able to subscribe/unsubscribe to additional topics
+     * and disconnect
+     */
     void onConnectionComplete();
-    void onConnectionLost(Throwable cause);
+
+    /**
+     * MQTT connection was active, but have been lost
+     */
+    void onConnectionLost(Throwable exception);
+
+    /**
+     * Not able to connect to MQTT broker
+     */
     void onConnectionFailed(Throwable exception);
+
+    /**
+     * Not able to disconnect from MQTT broker
+     */
+    void onDisconnectFailed(Throwable exception);
 }

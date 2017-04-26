@@ -37,17 +37,27 @@ public class MQTTClient {
 
     private static final String TAG = MQTTClient.class.getSimpleName();
     private static final String CLIENT_NAME = "TuskyMastodonClient";
-    private static final String SUBSCRIPTION_TOPIC_BASE = "tusky/notification/";
+    private static final String SUBSCRIPTION_TOPIC_BASE = "tusky/notification";
 
     private MqttAndroidClient mqttAndroidClient;
     private String serverUri;
     private NotificationActions notificationActions;
     private ArrayList<String> subscribedTopics;
+    private boolean isClientInitialized;
 
-    public MQTTClient(@NonNull Context context, @NonNull String serverUri, @NonNull final NotificationActions notificationActions) {
+    /**
+     * Create a MQTT client and subscribe to a first topic
+     *
+     * @param context             a context that has to be valid during all the MQTT client lifetime
+     * @param serverUri           MQTT broker URI
+     * @param topic               the first topic to subscribe on
+     * @param notificationActions actions that may occur during client lifetime
+     */
+    public MQTTClient(@NonNull Context context, @NonNull String serverUri, @NonNull final String topic, @NonNull final NotificationActions notificationActions) {
         this.serverUri = serverUri;
         this.notificationActions = notificationActions;
         this.subscribedTopics = new ArrayList<>();
+        this.isClientInitialized = false;
 
         String clientId = String.format(Locale.getDefault(), "%s/%s/%s", CLIENT_NAME, System.currentTimeMillis(), UUID.randomUUID().toString());
         mqttAndroidClient = new MqttAndroidClient(context, serverUri, clientId);
@@ -73,7 +83,7 @@ public class MQTTClient {
             public void messageArrived(String topic, MqttMessage message) throws Exception {
                 String strMessage = new String(message.getPayload());
                 Log.v(TAG, "Incoming message: " + message);
-                MQTTClient.this.notificationActions.onMessageReceived(strMessage);
+                MQTTClient.this.notificationActions.onMessageReceived(topic, strMessage);
             }
 
             @Override
@@ -97,6 +107,9 @@ public class MQTTClient {
                     disconnectedBufferOptions.setDeleteOldestMessages(false);
                     mqttAndroidClient.setBufferOpts(disconnectedBufferOptions);
                     notificationActions.onConnectionComplete();
+
+                    isClientInitialized = true;
+                    subscribeToTopic(topic);
                 }
 
                 @Override
@@ -111,14 +124,24 @@ public class MQTTClient {
         }
     }
 
-    public void subscribeToTopic(@NonNull String topic) {
-        final String fullTopicName = String.format(Locale.getDefault(), "%s/%s", SUBSCRIPTION_TOPIC_BASE, topic);
-        subscribedTopics.add(topic);
+    /**
+     * Subscribe to an additional MQTT topic
+     *
+     * @param topic the topic name.
+     *              In the context of Tusky, in order to avoid conflicts, it can't contain "/".
+     */
+    public void subscribeToTopic(@NonNull final String topic) {
+        final String fullTopicName = getFullTopicName(topic);
+        if (!isClientInitialized) {
+            Log.d(TAG, "subscribeToTopic: MQTT client is not initialized. You can only call this method after onConnectionComplete() occured");
+            return;
+        }
         try {
             mqttAndroidClient.subscribe(fullTopicName, 0, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
                     Log.v(TAG, "Subscribed to " + fullTopicName + " on " + serverUri);
+                    subscribedTopics.add(topic);
                     notificationActions.onConnectionComplete();
                 }
 
@@ -134,15 +157,30 @@ public class MQTTClient {
         }
     }
 
-    public void unsubscribeToTopic(@NonNull String topic) {
-        subscribedTopics.remove(topic);
 
+    /**
+     * Unsubscribe from any MQTT topic
+     *
+     * @param topic the topic name.
+     *              In the context of Tusky, in order to avoid conflicts, it can't contain "/".
+     */
+    public void unsubscribeToTopic(@NonNull String topic) {
+        if (!isClientInitialized) {
+            Log.d(TAG, "unsubscribeToTopic: MQTT client is not initialized. You can only call this method after onConnectionComplete() occured");
+            return;
+        }
         try {
             mqttAndroidClient.unsubscribe(getFullTopicName(topic));
+            subscribedTopics.remove(topic);
         } catch (MqttException ex) {
             Log.e(TAG, "Exception whilst unsubscribing");
             notificationActions.onConnectionFailed(ex);
         }
+    }
+
+    @NonNull
+    public ArrayList<String> getSubscribedTopics() {
+        return subscribedTopics;
     }
 
     private String getFullTopicName(String topic) {
@@ -150,5 +188,21 @@ public class MQTTClient {
             throw new IllegalArgumentException("Invalid topic name");
         }
         return String.format(Locale.getDefault(), "%s/%s", SUBSCRIPTION_TOPIC_BASE, topic);
+    }
+
+    /**
+     * Disconnect from MQTT broker
+     */
+    public void disconnect() {
+        if (!isClientInitialized) {
+            Log.d(TAG, "disconnect: MQTT client is not initialized. You can only call this method after onConnectionComplete() occured");
+            return;
+        }
+        try {
+            mqttAndroidClient.disconnect();
+        } catch (MqttException ex) {
+            Log.e(TAG, "Exception whilst disconnecting");
+            notificationActions.onDisconnectFailed(ex);
+        }
     }
 }
