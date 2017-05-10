@@ -18,8 +18,9 @@ package com.keylesspalace.tusky;
 import android.app.Application;
 import android.net.Uri;
 
-import com.squareup.picasso.Picasso;
 import com.jakewharton.picasso.OkHttp3Downloader;
+import com.keylesspalace.tusky.notifications.MqttNotification;
+import com.squareup.picasso.Picasso;
 
 public class TuskyApplication extends Application {
     @Override
@@ -46,5 +47,7 @@ public class TuskyApplication extends Application {
         if (BuildConfig.DEBUG) {
             Picasso.with(this).setLoggingEnabled(true);
         }
+
+        new MqttNotification(this);
     }
 }
