@@ -39,6 +39,7 @@ import com.keylesspalace.tusky.json.StringWithEmoji;
 import com.keylesspalace.tusky.json.StringWithEmojiTypeAdapter;
 import com.keylesspalace.tusky.network.MastodonAPI;
 import com.keylesspalace.tusky.network.TuskyAPI;
+import com.keylesspalace.tusky.notifications.MqttNotification;
 import com.keylesspalace.tusky.util.Log;
 import com.keylesspalace.tusky.util.OkHttpUtils;
 
@@ -217,15 +218,8 @@ public class BaseActivity extends AppCompatActivity {
                 }
             });
         } else {
-            // Start up the MessagingService on a repeating interval for "pull" notifications.
-            long checkInterval = 60 * 1000 * 5;
-            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            Intent intent = new Intent(this, MessagingService.class);
-            final int SERVICE_REQUEST_CODE = 8574603; // This number is arbitrary.
-            serviceAlarmIntent = PendingIntent.getService(this, SERVICE_REQUEST_CODE, intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-            alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    SystemClock.elapsedRealtime(), checkInterval, serviceAlarmIntent);
+            // Start up the push notifications client
+            new MqttNotification(this);
         }
     }
 

@@ -47,7 +47,5 @@ public class TuskyApplication extends Application {
         if (BuildConfig.DEBUG) {
             Picasso.with(this).setLoggingEnabled(true);
         }
-
-        new MqttNotification(this);
     }
 }
